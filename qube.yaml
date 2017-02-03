@@ -1,0 +1,39 @@
+name: my-python-project
+language: python
+pipeline: build_bake_test_deployment:v0.1
+security:
+  keys_loc: "conf/"
+notification:
+  type: slack
+  domain: 
+  channel: qubeship
+build:
+  skip: false
+  image:
+    name: python:3-onbuild
+    onbuild:
+      - pip install tox wheel && pip list && tox && python setup.py bdist_wheel
+  publish_artifact: dist/
+  lint: true
+bake:
+  skip: false
+  strategy: docker
+  script: Dockerfile
+  repositories:
+    - name: google
+      prefix: gcr.io/qubeship-partners
+      type: gcr
+test:
+  skip: true
+  functional:
+    provider: qubeship-sg
+deployment:
+  skip: false
+  continuous_deployment: true
+  service_name: my-python-container
+  environments:
+    prod:
+      - type: qubeship_managed
+        id: 589408b13c2d090006a6a485
+        template_id: qube_external_app_v1
+        srcRepo: google
