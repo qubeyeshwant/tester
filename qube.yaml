@@ -1,0 +1,32 @@
+id: 0238a09a-d5df-4813-838b-1c7e33420d03
+version: v2
+name: erioness1125tester
+apptype: api
+language: python
+containerName: erioness1125tester
+toolchain:
+  id: 590acb206542c1001de47e50
+  name: Qubeship-Python-Toolchain
+opinion:
+  id: 590acb21acfc9a000b513265
+  name: Qubeship default opinion
+endpoint:
+  id: 590acb22168303000bee5290
+  name: Qubeship Sandbox Cluster
+  type: target
+variables:
+  - name: APP_VERSION
+    value: v0.1
+build:
+  compile:
+    publish:
+     - dist/
+bake:
+  skip: false
+test:
+  skip: true
+deploy_to_qa:
+  skip: true
+deploy_to_prod:
+  skip: false
+
