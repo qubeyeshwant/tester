@@ -1,0 +1,24 @@
+---
+id: '58e5596a13d0cc000e88a95d'
+name: 'Qubeship basic  opinion (build only)'
+description: 'Qubeship Basic Opinion'
+visibility: 'public'
+
+variables:
+  - name: BASE_URL_E2E
+    optional: true
+isDefault: 'True'
+graml:
+  version: 1.0
+graph:
+  build:
+    has:
+      - compile
+      - unittest
+      - static_code_analysis
+    on_error:
+      - notify
+# below is the default implementation
+vertices:
+  build:
+    skippable: true
