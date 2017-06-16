@@ -14,10 +14,18 @@ graph:
   build:
     has:
       - compile
-      - unittest
-      - static_code_analysis
     on_error:
       - notify
+    next:
+      test1
+  test1:
+    has:
+      - unittest
+    next:
+      test2
+  test2:
+    has:
+      - static_code_analysis
 # below is the default implementation
 vertices:
   build:
