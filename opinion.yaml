@@ -37,7 +37,7 @@ vertices:
       - "docker build -t $1 -f $2 ."
     args:
       - $(CONTAINER_NAME)
-      - Dockerfile
+      - Dockerfile-busybox
     execute_outside_toolchain: true
   scan:
     action:
