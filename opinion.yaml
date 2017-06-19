@@ -10,6 +10,9 @@ variables:
   - name: CONTAINER_NAME
     optional: false
     value: $(qubeship:project::containerName)
+  - name: TWISTLOCK
+    optional: true
+    value: $(qubeship:endpoints:[name.eq('TwistlockConsole')])
 isDefault: 'True'
 graml:
   version: 1.0
