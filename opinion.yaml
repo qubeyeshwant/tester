@@ -10,9 +10,12 @@ variables:
   - name: CONTAINER_NAME
     optional: false
     value: $(qubeship:project::containerName)
-  - name: TWISTLOCK
+  - name: TWISTLOCK_URL
     optional: true
-    value: $(qubeship:endpoints:[name.eq('TwistlockConsole')])
+    value: $(qubeship:endpoints:[name.eq('TwistlockConsole')]:endPoint)
+  - name: TWISTLOCK_CREDENTIALS
+    optional: true
+    value: $(qubeship:secret:[name.eq('TwistlockConsole')])
 isDefault: 'True'
 graml:
   version: 1.0
@@ -46,5 +49,5 @@ vertices:
     action:
       - "echo $1"
     args:
-      - scan
+      - $(TWISTLOCK_URL)
     execute_outside_toolchain: true
