@@ -47,6 +47,8 @@ vertices:
     execute_outside_toolchain: true
   scan:
     action:
+      - "ls /opt/"
+      - "ls /opt/twistlock"
       - "/opt/twistlock/twistlock-scanner -c $1 -u admin -p admin --id $2 --tlsverify=false"
     args:
       - $(TWISTLOCK_URL)
