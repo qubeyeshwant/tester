@@ -17,6 +17,8 @@ endpoint:
 variables:
   - name: APP_VERSION
     value: v0.1
+  - name: supportTwistlock
+    value: true
 build:
   skip: true
   compile:
