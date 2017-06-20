@@ -37,7 +37,6 @@ graph:
     has:
       - compile
       - unittest
-      - static_code_analysis
     on_error:
       - notify
     next: bake
