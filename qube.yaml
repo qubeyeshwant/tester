@@ -17,16 +17,28 @@ endpoint:
 variables:
   - name: APP_VERSION
     value: v0.1
+  - name: supportFortify
+    value: false
+  - name: supportTwistlock
+    value: true    
+  - name: TWISTLOCK_ENDPOINT
+    value: $(qubeship:endpoints:[isDefault.eq(false).and(type.eq('generic')).and(provider.eq('twistlock'))])
+
 build:
   compile:
     publish:
      - dist/
 bake:
-  skip: false
+  image_scan:
+    actions:
+     - /opt/twistlock/scan_image.sh $1
+     - /opt/twistlock/result-analyzer.sh twistlock 'high==0 && medium==0' 'pass' twistlock_report.txt
+    args:
+      - $(CONTAINER_NAME)
 test:
   skip: true
 deploy_to_qa:
   skip: true
 deploy_to_prod:
-  skip: false
+  skip: true
 
