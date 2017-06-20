@@ -22,7 +22,7 @@ variables:
   - name: supportTwistlock
     value: true    
   - name: TWISTLOCK_ENDPOINT
-    value: $(qubeship:endpoints:[isDefault.eq(false).and(type.eq('generic')).and(provider.eq('twistlock'))])
+    value: $(qubeship:endpoints:[isDefault.eq(true).and(type.eq('generic')).and(provider.eq('twistlock'))])
 
 build:
   compile:
