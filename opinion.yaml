@@ -7,15 +7,28 @@ visibility: 'public'
 variables:
   - name: BASE_URL_E2E
     optional: true
+  - name: DOCKERFILE
+    optional: false
+    value: Dockerfile
+  - name: PROJECT_NAME
+    optional: false
+    value: $(qubeship:project::name)
+  - name: target_registry
+    optional: true
+    value: $(qubeship:endpoints:[isDefault.eq(true).and(type.eq('registry'))])
+  - name: target_k8s_cluster
+    optional: false
+    value: $(qubeship:endpoints:[isDefault.eq(true).and(type.eq('target')).and(provider.eq('kubernetes'))])
   - name: CONTAINER_NAME
     optional: false
     value: $(qubeship:project::containerName)
-  - name: TWISTLOCK_URL
+  - name: CONTAINER_TAG
     optional: true
-    value: $(qubeship:endpoints:[name.eq('TwistlockConsole')]:endPoint)
-  - name: TWISTLOCK_CREDENTIALS
+    value: latest
+  - name: ACCESS_TOKEN
     optional: true
-    value: $(qubeship:secret:[name.eq('TwistlockConsole')])
+    value: $(qubeship:secret:[isDefault.eq(true).and(type.eq('target')).and(provider.eq('kubernetes'))])
+
 isDefault: 'True'
 graml:
   version: 1.0
@@ -31,26 +44,72 @@ graph:
   bake:
     has:
       - docker_build
-      - scan
+      - image_scan
+      - push_to_registry
+    on_error:
+      - notify
+    next: deploy_to_qa
+  deploy_to_qa:
+    has:
+      - release_to_qa
+    on_error:
+      - notify
+    next: deploy_to_prod
+  deploy_to_prod:
+    has:
+      - release_to_prod
     on_error:
       - notify
 # below is the default implementation
 vertices:
   build:
     skippable: true
+  bake:
+    skippable: true
   docker_build:
     action:
       - "docker build -t $1 -f $2 ."
     args:
       - $(CONTAINER_NAME)
-      - Dockerfile-busybox
+      - Dockerfile
     execute_outside_toolchain: true
-  scan:
+  image_scan:
+    execute_outside_toolchain: false
+  push_to_registry:
     action:
-      - "ls /opt/"
-      - "ls /opt/twistlock"
-      - "/opt/twistlock/twistlock-scanner -c $1 -u admin -p admin --id $2 --tlsverify=false"
+      - "docker tag $1 $2/$3:$4"
+      - "docker push $2/$3:$4"
     args:
-      - $(TWISTLOCK_URL)
       - $(CONTAINER_NAME)
+      - $(target_registry).additionalInfo.account
+      - $(CONTAINER_NAME)
+      - $(CONTAINER_TAG)
     execute_outside_toolchain: true
+  deploy_to_qa:
+    skippable: true
+  release_to_qa:
+    action:
+      - "echo $1"
+    args:
+      - "hello world - howdy?"
+  deploy_to_prod:
+    skippable: true
+  release_to_prod:
+    action:
+      - "qube_utils/deployment_templates/k8s/qube_deploy_k8s.sh $14/$1:$2 $3 $4 $5-deployment /tmp/deployment/$6 $7 $8 $9 $10 $11 $12 $13"
+    args:
+      - $(CONTAINER_NAME)
+      - $(CONTAINER_TAG)
+      - $(target_k8s_cluster).additionalInfo.namespace
+      - $(CONTAINER_NAME)
+      - $(CONTAINER_NAME)
+      - $(qubeship:env::BUILD_NUMBER)
+      - qube_external_app_v1
+      - $(qubeship:env::WORKSPACE)
+      - $(target_k8s_cluster).category
+      - $(target_k8s_cluster).id
+      - $(target_k8s_cluster).tenant
+      - $(target_k8s_cluster).provider
+      - $(target_k8s_cluster).endPoint
+      - $(target_registry).additionalInfo.account
+ 
